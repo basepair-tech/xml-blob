@@ -1,0 +1,19 @@
+image: openjdk:8
+
+definitions:
+  steps:
+    - step: &test
+        name: Test
+        caches:
+          - gradle
+        script:
+          - ./gradlew test
+
+pipelines:
+  pull-requests:
+    '**':
+      - step: *test
+
+  branches:
+    master:
+      - step: *test
