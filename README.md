@@ -1,8 +1,8 @@
-#XML Blob
+# XML Blob
 
 XML Blob is a helper class to build an XML String using a simple interface.
 
-```$kotlin
+```
 val xmlBlob = BmlBlob.node("root",
   node("a", "key1", "value1", "key2", "value2", "1"),
   node("b", "2"),
@@ -10,14 +10,15 @@ val xmlBlob = BmlBlob.node("root",
     node("c1", 1),
     node("c2", 2)),
   node("d", mask("123", "***"))
+)
 
 val xml = xmlBlob.getXml() 
 val maskedXml = xmlBlob.getMaskedXml()
-);
+
 ```
 
 Produces:
-```$xml
+```
 <root><a key1="value1" key2="value2">1</a><b>2</b><c><c1>1</c1><c2>2</c2></c><d>123</d></root>
 
 <root><a key1="value1" key2="value2">1</a><b>2</b><c><c1>1</c1><c2>2</c2></c><d>***</d></root>
@@ -32,7 +33,7 @@ repositories {
 }
 
 dependencies {
-  implementation("tech.basepair:xml-blob:1.0.0")
+  implementation("tech.basepair:xml-blob:0.1.0")
 }
 ```
 
@@ -49,7 +50,7 @@ The XML Blob API consists of several methods:
 ### Supplier APIs
 For each of the methods above there is a suppluer version which can be passed to optionally return a value.
 
-```$kotlin
+```
 val xmlNode = node("a", node { if (someValue) { node("b", 1) else { null } })
 ...
 node("a", text { if (someValue) { text("hello") } else { null } });
@@ -64,7 +65,7 @@ representation of the XML and underlying use a default Printer that utilisies a 
 The masked XML replaces any content with the masked value supplied and the `mask()` method can take any of the XmlBlob types.
 
 For example
-```$kotlin
+```
 val xmlNode = node("password", mask(text("goodbye"), "******")
 xml = xmlNode.getXml() => "<password>goodbye</password>"
 maskedXml = xmlBode.getMaskedXml() => "<password>******</password>"
@@ -74,7 +75,7 @@ maskedXml = xmlBode.getMaskedXml() => "<password>******</password>"
 A custom printer can be defined that allows outputting the xml node to an Appendable source.
 For example a FilePrinter could be used to write the XML to a file.
 
-```$kotlin
+```
 class FilePrinter(_printWriter: PrintWriter, override val mask: Boolean) : XmlBlob.Printer {
   private val printWriter = _printWriter
 
@@ -132,7 +133,7 @@ public class XmlSoapBlob {
 }
 ```
 With the above you could then do the following:
-```$java
+```java
 XmlBlob.Node envelope = envelope(
     header(
         node("bp:maxTime", attrs("value", "10000", "xmlns:bp", "http://basepair.tech")),
