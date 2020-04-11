@@ -2,7 +2,7 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 import com.jfrog.bintray.gradle.BintrayExtension
 
 project.group = "tech.basepair"
-project.version = "0.1.0-SNAPSHOT"
+project.version = "0.1.0"
 
 plugins {
     // Apply the Kotlin JVM plugin to add support for Kotlin.
@@ -13,7 +13,6 @@ plugins {
     // Apply the java-library plugin for API and implementation separation.
     `java-library`
     `maven-publish`
-    signing
 }
 
 repositories {
@@ -105,18 +104,6 @@ publishing {
     }
 }
 
-extra["isReleaseVersion"] = !version.toString().endsWith("SNAPSHOT")
-signing {
-    val signingKeyId = findProperty("signing.basepair.keyId") as String?
-    val signingKey = findProperty("signing.basepair.key") as String?
-    val signingPassword = findProperty("signing.basepair.password") as String?
-    setRequired({
-        (project.extra["isReleaseVersion"] as Boolean) && gradle.taskGraph.hasTask("publish")
-    })
-    useInMemoryPgpKeys(signingKeyId, signingKey, signingPassword)
-    sign(publishing.publications["default"])
-}
-
 bintray {
     user = findProperty("bintray.basepair.user") as String?
     key = findProperty("bintray.basepair.apiKey") as String?
@@ -125,8 +112,18 @@ bintray {
     pkg(delegateClosureOf<BintrayExtension.PackageConfig> {
         repo = "maven"
         name = "xml-blob"
+        desc = "Utility for building XML documents with a simple interface"
         userOrg = "basepair"
         setLicenses("Apache-2.0")
+        websiteUrl = "https://bitbucket.org/basepairtech/xml-blob"
         vcsUrl = "https://bitbucket.org/basepairtech/xml-blob.git"
+        publicDownloadNumbers = true
+        version(delegateClosureOf<BintrayExtension.VersionConfig> {
+            name = project.version as String
+            gpg(delegateClosureOf<BintrayExtension.GpgConfig> {
+                sign = true
+                passphrase = findProperty("signing.basepair.password") as String?
+            })
+        })
     })
 }
