@@ -1,5 +1,7 @@
 # XML Blob
 
+![CI](https://github.com/basepair-tech/xml-blob/workflows/CI/badge.svg?branch=master)
+
 XML Blob is a helper class to build an XML String using a simple interface.
 
 ```
@@ -147,4 +149,13 @@ XmlBlob.Node envelope = envelope(
         )
     )
 );
+```
+
+## Publishing artifacts
+
+The xml-blob artifacts are published to both jcenter and github packages.
+To publish them both the following commands need to be run:
+```
+./gradlew publish
+./gradlew bintrayUpload
 ```
