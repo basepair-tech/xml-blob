@@ -2,7 +2,7 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 import com.jfrog.bintray.gradle.BintrayExtension
 
 project.group = "tech.basepair"
-project.version = "0.1.0"
+project.version = "0.2.0"
 
 plugins {
     // Apply the Kotlin JVM plugin to add support for Kotlin.
@@ -71,6 +71,16 @@ val sourcesJar by tasks.creating(Jar::class) {
 }
 
 publishing {
+    repositories {
+        maven {
+            name = "basepair-github"
+            url = uri("https://maven.pkg.github.com/basepair-tech/xml-blob")
+            credentials {
+                username = findProperty("basepair.github.user") as String?
+                password = findProperty("basepair.github.password") as String?
+            }
+        }
+    }
     publications {
         create<MavenPublication>("default") {
             artifact(dokkaJar)
@@ -80,7 +90,7 @@ publishing {
             pom {
                 name.set("Xml Blob")
                 description.set("Utility for building Xml documents")
-                url.set("https://bitbucket.org/basepairtech/xml-blob")
+                url.set("https://github.com/basepair-tech/xml-blob")
                 licenses {
                     license {
                         name.set("The Apache Software License, Version 2.0")
@@ -95,9 +105,9 @@ publishing {
                     }
                 }
                 scm {
-                    connection.set("scm:git:https://bitbucket.org/basepairtech/xml-blob.git")
-                    developerConnection.set("scm:git:ssh:bitbucket.org/basepairtech/xml-blob.git")
-                    url.set("https://bitbucket.org/basepairtech/xml-blob.git")
+                    connection.set("scm:git:https://github.com/basepair-tech/xml-blob.git")
+                    developerConnection.set("scm:git:ssh:git@github.com:basepair-tech/xml-blob.git")
+                    url.set("https://github.com/basepair-tech/xml-blob.git")
                 }
             }
         }
@@ -115,8 +125,8 @@ bintray {
         desc = "Utility for building XML documents with a simple interface"
         userOrg = "basepair"
         setLicenses("Apache-2.0")
-        websiteUrl = "https://bitbucket.org/basepairtech/xml-blob"
-        vcsUrl = "https://bitbucket.org/basepairtech/xml-blob.git"
+        websiteUrl = "https://github.com/basepair-tech/xml-blob"
+        vcsUrl = "https://github.com/basepair-tech/xml-blob.git"
         publicDownloadNumbers = true
         version(delegateClosureOf<BintrayExtension.VersionConfig> {
             name = project.version as String

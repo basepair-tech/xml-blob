@@ -26,14 +26,14 @@ Produces:
 
 ## Installation
 
-Xml Blob is available from JCenter.
+Xml Blob is available from JCenter as well as Github Packages 
 ```
 repositories {
   jcenter()
 }
 
 dependencies {
-  implementation("tech.basepair:xml-blob:0.1.0")
+  implementation("tech.basepair:xml-blob:0.2.0")
 }
 ```
 
