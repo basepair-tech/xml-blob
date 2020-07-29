@@ -2,13 +2,14 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 import com.jfrog.bintray.gradle.BintrayExtension
 
 project.group = "tech.basepair"
-project.version = "0.3.0-SNAPSHOT"
+project.version = "${version}"
 
 plugins {
     // Apply the Kotlin JVM plugin to add support for Kotlin.
     id("org.jetbrains.kotlin.jvm") version "1.3.61"
     id("org.jetbrains.dokka") version "0.10.1"
     id("com.jfrog.bintray") version "1.8.5"
+    id("net.researchgate.release") version "2.8.1"
 
     // Apply the java-library plugin for API and implementation separation.
     `java-library`
@@ -69,6 +70,15 @@ val sourcesJar by tasks.creating(Jar::class) {
     archiveClassifier.set("sources")
     from(sourceSets.main.get().allSource)
 }
+
+tasks.register("publishAndBintrayUpload") {
+    description = "Publishes to github and uploads to Bintray"
+    dependsOn("publish")
+    dependsOn("bintrayUpload")
+    tasks.getByName("bintrayUpload").mustRunAfter("publish")
+}
+
+tasks.getByName("afterReleaseBuild").dependsOn("publishAndBintrayUpload")
 
 publishing {
     repositories {
