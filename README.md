@@ -5,7 +5,7 @@
 XML Blob is a helper class to build an XML String using a simple interface.
 
 ```
-val xmlBlob = BmlBlob.node("root",
+val xmlBlob = XmlBlob.node("root",
   node("a", "key1", "value1", "key2", "value2", "1"),
   node("b", "2"),
   node("c",
@@ -14,8 +14,8 @@ val xmlBlob = BmlBlob.node("root",
   node("d", mask("123", "***"))
 )
 
-val xml = xmlBlob.getXml() 
-val maskedXml = xmlBlob.getMaskedXml()
+val xml = xmlBlob.toXml() 
+val maskedXml = xmlBlob.toXml(true)
 
 ```
 
@@ -50,7 +50,7 @@ The XML Blob API consists of several methods:
 * mask()
 
 ### Supplier APIs
-For each of the methods above there is a suppluer version which can be passed to optionally return a value.
+For each of the methods above there is a supplier version which can be passed to optionally return a value.
 
 ```
 val xmlNode = node("a", node { if (someValue) { node("b", 1) else { null } })
@@ -60,8 +60,9 @@ node("a", text { if (someValue) { text("hello") } else { null } });
 
 ## Printer
 
-By default the `node()` returned from XmlBlob exposes a `getXml()` and `getMaskedXml()` methods that return the String 
-representation of the XML and underlying use a default Printer that utilisies a StringBuilder.
+By default the `node()` returned from XmlBlob exposes a `toXml(mask: Boolean)` and `toXml(printer: Printer)` methods that return the String 
+representation of the XML and underlying use a default Printer that utilises a StringBuilder.
+A custom printer can be passed in.
 
 ### Masked XML
 The masked XML replaces any content with the masked value supplied and the `mask()` method can take any of the XmlBlob types.
@@ -69,8 +70,8 @@ The masked XML replaces any content with the masked value supplied and the `mask
 For example
 ```
 val xmlNode = node("password", mask(text("goodbye"), "******")
-xml = xmlNode.getXml() => "<password>goodbye</password>"
-maskedXml = xmlBode.getMaskedXml() => "<password>******</password>"
+xml = xmlNode.toXml() => "<password>goodbye</password>"
+maskedXml = xmlBode.toXml(true) => "<password>******</password>"
 ```
 
 ### Custom Printer

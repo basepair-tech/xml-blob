@@ -2,7 +2,7 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 import com.jfrog.bintray.gradle.BintrayExtension
 
 project.group = "tech.basepair"
-project.version = "0.2.0"
+project.version = "0.3.0-SNAPSHOT"
 
 plugins {
     // Apply the Kotlin JVM plugin to add support for Kotlin.

@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 original authors
+ * Copyright 2020 Base Pair Pty Ltd
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * You may not use this file except in compliance with the License.
@@ -19,7 +19,7 @@ import org.apache.commons.text.StringEscapeUtils
 
 /**
  * Utility for building a String that represents an XML document.
- * The XmlBlob object is immutable and the passed values are sopied where it makes sense.
+ * The XmlBlob object is immutable and the passed values are copied where it makes sense.
  *
  * Note the XML Declaration is not output as part of the XmlBlob
  *
@@ -49,11 +49,9 @@ sealed class XmlBlob {
    * Represents an xml element
    */
   interface Node : Blob {
-    @JvmDefault fun getMaskedXml() = getXml(StringBuilderPrinter(true))
+    @JvmDefault fun toXml(shouldMask: Boolean = false) = toXml(StringBuilderPrinter(shouldMask))
 
-    @JvmDefault fun getXml() = getXml(StringBuilderPrinter())
-
-    private fun getXml(printer: Printer): String {
+    @JvmDefault fun toXml(printer: Printer): String {
       appendTo(printer)
       return printer.toString()
     }
@@ -273,7 +271,7 @@ sealed class XmlBlob {
      *
      * @param node The node to mask or output
      * @param mask The mask value. Defaults to `***masked***`
-     * @see [Node.getMaskedXml]
+     * @see [Node.toXml]
      */
     @JvmStatic
     @JvmOverloads
@@ -288,7 +286,7 @@ sealed class XmlBlob {
      *
      * @param attr The attribute with the value to mask
      * @param mask The mask value. Defaults to `***masked***`
-     * @see [Node.getMaskedXml]
+     * @see [Node.toXml]
      */
     @JvmStatic
     @JvmOverloads
@@ -303,7 +301,7 @@ sealed class XmlBlob {
      *
      * @param text The text to mask
      * @param mask The mask value. Defaults to `***masked***`
-     * @see [Node.getMaskedXml]
+     * @see [Node.toXml]
      */
     @JvmStatic
     fun mask(text: Text, mask: String = "***masked***"): Text = MaskedText(text, mask)
@@ -319,7 +317,7 @@ sealed class XmlBlob {
      *
      * @param content The text to mask
      * @param mask The mask value. Defaults to `***masked***`
-     * @see [Node.getMaskedXml]
+     * @see [Node.toXml]
      */
     @JvmStatic
     @JvmOverloads
@@ -334,7 +332,7 @@ sealed class XmlBlob {
      *
      * @param cdata The cdata value to mask
      * @param mask The mask value. Defaults to `***masked***`
-     * @see [Node.getMaskedXml]
+     * @see [Node.toXml]
      */
     @JvmStatic
     @JvmOverloads
