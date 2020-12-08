@@ -6,8 +6,8 @@ project.version = "${version}"
 
 plugins {
     // Apply the Kotlin JVM plugin to add support for Kotlin.
-    id("org.jetbrains.kotlin.jvm") version "1.3.61"
-    id("org.jetbrains.dokka") version "0.10.1"
+    id("org.jetbrains.kotlin.jvm") version "1.4.21"
+    id("org.jetbrains.dokka") version "1.4.20"
     id("com.jfrog.bintray") version "1.8.5"
     id("net.researchgate.release") version "2.8.1"
 
@@ -29,7 +29,7 @@ dependencies {
 
     implementation("org.apache.commons", "commons-text" , "1.8")
 
-    implementation("org.jetbrains.kotlinx", "kotlinx-collections-immutable-jvm", "0.3.2")
+    implementation("org.jetbrains.kotlinx", "kotlinx-collections-immutable-jvm", "0.3.3")
 
     // Use the Kotlin test library.
     testImplementation("org.jetbrains.kotlin:kotlin-test")
@@ -53,16 +53,15 @@ tasks.withType<Jar> {
     }
 }
 
-tasks.dokka {
-    outputFormat = "html"
-    outputDirectory = "$buildDir/javadoc"
+tasks.dokkaHtml.configure {
+    outputDirectory.set(buildDir.resolve("javadoc"))
 }
 
 val dokkaJar by tasks.creating(Jar::class) {
     group = JavaBasePlugin.DOCUMENTATION_GROUP
     description = "Assembles Kotlin docs with Dokka"
     archiveClassifier.set("javadoc")
-    from(tasks.dokka)
+    from(tasks.dokkaHtml)
 }
 
 val sourcesJar by tasks.creating(Jar::class) {
@@ -71,26 +70,17 @@ val sourcesJar by tasks.creating(Jar::class) {
     from(sourceSets.main.get().allSource)
 }
 
-tasks.register("publishAndBintrayUpload") {
-    description = "Publishes to github and uploads to Bintray"
-    dependsOn("publish")
-    dependsOn("bintrayUpload")
-    tasks.getByName("bintrayUpload").mustRunAfter("publish")
-}
+//tasks.register("bintrayUpload") {
+//    description = "Uploads to Bintray"
+//    dependsOn("publish")
+//    dependsOn("bintrayUpload")
+//    tasks.getByName("bintrayUpload").mustRunAfter("publish")
+//}
+//
 
-tasks.getByName("afterReleaseBuild").dependsOn("publishAndBintrayUpload")
+tasks.getByName("afterReleaseBuild").dependsOn("bintrayUpload")
 
 publishing {
-    repositories {
-        maven {
-            name = "basepair-github"
-            url = uri("https://maven.pkg.github.com/basepair-tech/xml-blob")
-            credentials {
-                username = findProperty("basepair.github.user") as String?
-                password = findProperty("basepair.github.password") as String?
-            }
-        }
-    }
     publications {
         create<MavenPublication>("default") {
             artifact(dokkaJar)
@@ -146,4 +136,12 @@ bintray {
             })
         })
     })
+}
+val compileKotlin: KotlinCompile by tasks
+compileKotlin.kotlinOptions {
+    jvmTarget = "1.8"
+}
+val compileTestKotlin: KotlinCompile by tasks
+compileTestKotlin.kotlinOptions {
+    jvmTarget = "1.8"
 }

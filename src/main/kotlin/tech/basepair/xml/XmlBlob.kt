@@ -32,6 +32,8 @@ import org.apache.commons.text.StringEscapeUtils
  *            )
  *        )
  *    )
+ *
+ * @author jaiew
  */
 sealed class XmlBlob {
 
@@ -48,7 +50,9 @@ sealed class XmlBlob {
   /**
    * Represents an xml element
    */
-  interface Node : Blob {
+  interface BlobNode : Blob {
+    @JvmDefault fun toXml() = toXml(false)
+
     @JvmDefault fun toXml(shouldMask: Boolean = false) = toXml(StringBuilderPrinter(shouldMask))
 
     @JvmDefault fun toXml(printer: Printer): String {
@@ -58,7 +62,7 @@ sealed class XmlBlob {
   }
 
   /**
-   * Represents the attribute list on an [Node]
+   * Represents the attribute list on an [BlobNode]
    */
   interface Attrs : Blob {
     val attrs: Set<Attr>
@@ -73,26 +77,26 @@ sealed class XmlBlob {
   }
 
   /**
-   * Represents the text of an xml element [Node]
+   * Represents the text of an xml element [BlobNode]
    */
   interface Text : Blob
 
   /**
-   * Represents the CDATA of an xml element [Node]
+   * Represents the CDATA of an xml element [BlobNode]
    */
   interface Cdata : Blob
 
   companion object {
-    private val EMPTY_NODE : Node = EmptyNode()
+    private val EMPTY_BLOB_NODE : BlobNode = EmptyNode()
     private val EMPTY_TEXT : Text = EmptyText()
     private val EMPTY_ATTRS : Attrs = EmptyAttrs()
     private val EMPTY_ATTR : Attr = EmptyAttr()
     private val EMPTY_CDATA : Cdata = EmptyCdata()
 
     /**
-     * Creates an empty [Node] that when serialized is empty
+     * Creates an empty [BlobNode] that when serialized is empty
      */
-    @JvmStatic fun emptyNode() = EMPTY_NODE
+    @JvmStatic fun emptyNode() = EMPTY_BLOB_NODE
     /**
      * Creates an empty [Text] that when serialized is empty
      */
@@ -115,92 +119,92 @@ sealed class XmlBlob {
      * This is equivalent to calling [node{String, Attrs, vararg Node} with [emptyAttrs]
      */
     @JvmStatic
-    fun node(tag: String, vararg contents: Node): Node = node(tag, EMPTY_ATTRS, *contents)
+    fun node(tag: String, vararg contents: BlobNode): BlobNode = node(tag, EMPTY_ATTRS, *contents)
 
     /**
      * Creates a node with the given list of contents as children nodes
      * This is equivalent to calling [node{String, Attrs, List<Node>}] with [emptyAttrs]
      */
     @JvmStatic
-    fun node(tag: String, contents: List<Node>): Node = node(tag, EMPTY_ATTRS, contents)
+    fun node(tag: String, contents: List<BlobNode>): BlobNode = node(tag, EMPTY_ATTRS, contents)
 
     /**
      * Creates a node with the given attributes and children contents
      */
     @JvmStatic
-    fun node(tag: String, attrs: Attrs, vararg contents: Node): Node = NodeImpl(tag, attrs, *contents)
+    fun node(tag: String, attrs: Attrs, vararg contents: BlobNode): BlobNode = NodeImpl(tag, attrs, *contents)
 
     /**
      * Creates a node with the given attributes and list of contents as children nodes
      */
     @JvmStatic
-    fun node(tag: String, attrs: Attrs, contents: List<Node>): Node = NodeImpl(tag, attrs, contents)
+    fun node(tag: String, attrs: Attrs, contents: List<BlobNode>): BlobNode = NodeImpl(tag, attrs, contents)
 
     /**
      * Creates a node with a CDATA child node.
      * This is equivalent to calling [node{String, Attrs, Cdata}] with [emptyAttrs]
      */
     @JvmStatic
-    fun node(tag: String, cdata: Cdata): Node = node(tag, EMPTY_ATTRS, cdata)
+    fun node(tag: String, cdata: Cdata): BlobNode = node(tag, EMPTY_ATTRS, cdata)
 
     /**
      * Creates a node with the give attributes and CDATA child node
      */
     @JvmStatic
-    fun node(tag: String, attrs: Attrs, cdata: Cdata): Node = NodeImpl(tag, attrs, cdata)
+    fun node(tag: String, attrs: Attrs, cdata: Cdata): BlobNode = NodeImpl(tag, attrs, cdata)
 
     /**
      * Creates a node with the given text child node
      * This is equivalent to calling [node{String, Attrs, Text}] with [emptyAttrs]
      */
     @JvmStatic
-    fun node(tag: String, text: Text): Node = node(tag, EMPTY_ATTRS, text)
+    fun node(tag: String, text: Text): BlobNode = node(tag, EMPTY_ATTRS, text)
 
     /**
      * Creates a node with the child node that contains the value of the integer
      * This is equivalent to calling [node{String, Attrs, Int}] with [emptyAttrs]
      */
     @JvmStatic
-    fun node(tag: String, num: Int): Node = node(tag, EMPTY_ATTRS, num)
+    fun node(tag: String, num: Int): BlobNode = node(tag, EMPTY_ATTRS, num)
 
     /**
      * Creates a node with the child node that contains the value of the boolean
      * This is equivalent to calling [node{String, Attrs, Boolean}] with [emptyAttrs]
      */
     @JvmStatic
-    fun node(tag: String, value: Boolean): Node = node(tag, EMPTY_ATTRS, value)
+    fun node(tag: String, value: Boolean): BlobNode = node(tag, EMPTY_ATTRS, value)
 
     /**
      * Creates a node with the child node that contains the value of the string
      * This is equivalent to calling [node{String, Attrs, String}] with [emptyAttrs]
      */
     @JvmStatic
-    fun node(tag: String, value: String): Node = node(tag, EMPTY_ATTRS, value)
+    fun node(tag: String, value: String): BlobNode = node(tag, EMPTY_ATTRS, value)
 
     /**
      * Creates a node with the child node that contains the value of the integer
      */
     @JvmStatic
-    fun node(tag: String, attrs: Attrs, num: Int): Node = NodeImpl(tag, attrs, text(num.toString()))
+    fun node(tag: String, attrs: Attrs, num: Int): BlobNode = NodeImpl(tag, attrs, text(num.toString()))
 
     /**
      * Creates a node with the child node that contains the value of the boolean
      */
     @JvmStatic
-    fun node(tag: String, attrs: Attrs  = emptyAttrs(), value: Boolean): Node = node(tag, attrs, text(value.toString()))
+    fun node(tag: String, attrs: Attrs  = emptyAttrs(), value: Boolean): BlobNode = node(tag, attrs, text(value.toString()))
 
     /**
      * Creates a node with the child node that contains the value of the string
      * This is equivalent to calling [node{String, Attrs, Text}] with [Text]
      */
     @JvmStatic
-    fun node(tag: String, attrs: Attrs, value: String): Node = node(tag, attrs, text(value))
+    fun node(tag: String, attrs: Attrs, value: String): BlobNode = node(tag, attrs, text(value))
 
     /**
      * Creates a node with the given text child node
      */
     @JvmStatic
-    fun node(tag: String, attrs: Attrs, text: Text): Node = NodeImpl(tag, attrs, text)
+    fun node(tag: String, attrs: Attrs, text: Text): BlobNode = NodeImpl(tag, attrs, text)
 
     /**
      * Creates a set of attributes based on the strings.
@@ -269,13 +273,13 @@ sealed class XmlBlob {
      *    // Below results in: <masked/> instead of <a>value</a> when masked xml is requested.
      *    val maskedNode = mask(node("a", text("value"), "masked")
      *
-     * @param node The node to mask or output
+     * @param blobNode The node to mask or output
      * @param mask The mask value. Defaults to `***masked***`
-     * @see [Node.toXml]
+     * @see [BlobNode.toXml]
      */
     @JvmStatic
     @JvmOverloads
-    fun mask(node: Node, mask: String = "***masked***"): Node = MaskedNode(node, mask)
+    fun mask(blobNode: BlobNode, mask: String = "***masked***"): BlobNode = MaskedNode(blobNode, mask)
 
     /**
      * Creates a masked attribute which when the masked version is printed the value of the attribute will be replaced
@@ -286,7 +290,7 @@ sealed class XmlBlob {
      *
      * @param attr The attribute with the value to mask
      * @param mask The mask value. Defaults to `***masked***`
-     * @see [Node.toXml]
+     * @see [BlobNode.toXml]
      */
     @JvmStatic
     @JvmOverloads
@@ -301,7 +305,7 @@ sealed class XmlBlob {
      *
      * @param text The text to mask
      * @param mask The mask value. Defaults to `***masked***`
-     * @see [Node.toXml]
+     * @see [BlobNode.toXml]
      */
     @JvmStatic
     fun mask(text: Text, mask: String = "***masked***"): Text = MaskedText(text, mask)
@@ -317,7 +321,7 @@ sealed class XmlBlob {
      *
      * @param content The text to mask
      * @param mask The mask value. Defaults to `***masked***`
-     * @see [Node.toXml]
+     * @see [BlobNode.toXml]
      */
     @JvmStatic
     @JvmOverloads
@@ -332,7 +336,7 @@ sealed class XmlBlob {
      *
      * @param cdata The cdata value to mask
      * @param mask The mask value. Defaults to `***masked***`
-     * @see [Node.toXml]
+     * @see [BlobNode.toXml]
      */
     @JvmStatic
     @JvmOverloads
@@ -343,7 +347,7 @@ sealed class XmlBlob {
      * If the returned node from the supplier is missing then an empty node is returned.
      */
     @JvmStatic
-    fun node(supplier: () -> Node?) = supplier() ?: emptyNode()
+    fun node(supplier: () -> BlobNode?) = supplier() ?: emptyNode()
 
     /**
      * Allows passing a attributes supplier that can be null.
@@ -375,7 +379,7 @@ sealed class XmlBlob {
   }
 
 
-  private class EmptyNode : Node
+  private class EmptyNode : BlobNode
   private class EmptyAttr : Attr {
     override val key: String
       get() = ""
@@ -391,7 +395,7 @@ sealed class XmlBlob {
   private class EmptyCdata : Cdata
   private class EmptyText : Text
 
-  private class NodeImpl : Node {
+  private class NodeImpl : BlobNode {
     private val tag: String
     private val attrs: Attrs
     private val children: List<Blob>
@@ -494,8 +498,8 @@ sealed class XmlBlob {
     }
   }
 
-  private class MaskedNode(_node: Node, _mask: String) : Node {
-    private val node = _node
+  private class MaskedNode(_blob_node: BlobNode, _mask: String) : BlobNode {
+    private val node = _blob_node
     private val maskedXml = node(_mask)
 
     override fun appendTo(printer: Printer) {

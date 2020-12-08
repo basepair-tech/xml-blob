@@ -107,7 +107,7 @@ File("path-to-masked-file").printWriter().use { xml.appendTo(FilePrinter(it, tru
 
 ### Utilties
 You can create simple utilities like the one below for creating Soap documents.
-These examples could be further typed by extending the XmlBlob.Node interface.
+These examples could be further typed by extending the XmlBlob.BlobNode interface.
 
 ```java
 public class XmlSoapBlob {
@@ -118,26 +118,26 @@ public class XmlSoapBlob {
       attr("xmlns:xsd", "http://www.w3.org/1999/XMLSchema")
   );
     
-  public static XmlBlob.Node envelope(XmlBlob.Node soapHeader, XmlBlob.Node soapBody) {
+  public static XmlBlob.BlobNode envelope(XmlBlob.BlobNode soapHeader, XmlBlob.BlobNode soapBody) {
     return envelope(emptyAttrs(), soapHeader, soapBody);
   }
   
-  public static XmlBlob.Node envelope(XmlBlob.Attrs additionalAtts, XmlBlob.Node soapHeader, XmlBlob.Node soapBody) {
+  public static XmlBlob.BlobNode envelope(XmlBlob.Attrs additionalAtts, XmlBlob.BlobNode soapHeader, XmlBlob.BlobNode soapBody) {
     return node("soap:Envelope", attrs(SOAP_ATTRS, additionalAtts), soapHeader, soapBody);
   }
   
-  public static XmlBlob.Node header(XmlBlob.Node ... nodes) {
+  public static XmlBlob.BlobNode header(XmlBlob.BlobNode ... nodes) {
     return node("soap:Header", nodes);
   }
   
-  public static XmlBlob.Node body(XmlBlob.Node body) {
+  public static XmlBlob.BlobNode body(XmlBlob.BlobNode body) {
     return node("soap:Body", body);
   }
 }
 ```
 With the above you could then do the following:
 ```java
-XmlBlob.Node envelope = envelope(
+XmlBlob.BlobNode envelope = envelope(
     header(
         node("bp:maxTime", attrs("value", "10000", "xmlns:bp", "http://basepair.tech")),
         node("bp:result", attrs("xmlns:bp", "http://basepair.tech"),
@@ -154,9 +154,20 @@ XmlBlob.Node envelope = envelope(
 
 ## Publishing artifacts
 
-The xml-blob artifacts are published to both jcenter and github packages.
-To publish them both the following commands need to be run:
+The xml-blob artifacts are published to jcenter.
+To publish the following command need to be run:
 ```
-./gradlew publish
 ./gradlew bintrayUpload
+```
+
+But you can run the release command (see below) and it will do the release and publish the artifact.
+
+## Release
+
+This is using the Gradle release plugin https://github.com/researchgate/gradle-release
+
+The release is configured to publish the artifacts to Bintray.
+
+```
+./gradlew release
 ```
